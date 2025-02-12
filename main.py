@@ -93,17 +93,17 @@ class Parser():
         return result
 
 def main():
-    if len(sys.argv) > 1 :
+    if len(sys.argv) > 1:
         source = "".join(sys.argv[1:])
 
         try:
             result = Parser.run(source)
             print(result)
         except ValueError as e:
-            print(f"erro {e}")
+            sys.stderr.write(str(e) + '\n')
     
     else:
-        raise ValueError("não forneceu nenhuma espressão")
+        sys.stderr.write("nenhuma entrada à ser processada" + '\n')
 
 if __name__=="__main__":
     main()
