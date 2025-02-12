@@ -93,7 +93,7 @@ class Parser():
         return result
 
 def main():
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 1 :
         source = "".join(sys.argv[1:])
 
         try:
@@ -103,7 +103,7 @@ def main():
             print(f"erro {e}")
     
     else:
-        print("forneça a expressão: ")
+        raise ValueError("não forneceu nenhuma espressão")
 
 if __name__=="__main__":
     main()
