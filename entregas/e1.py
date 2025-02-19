@@ -45,16 +45,6 @@ class Tokenizer:
             self.next = Token("MINUS", current_char)
             self.position += 1
             return
-        
-        elif current_char == '*':
-            self.next = Token("MULT", current_char)
-            self.position+=1
-            return
-        
-        elif current_char == '/':
-            self.next = Token("DIV", current_char)
-            self.position+=1
-            return
 
         else:
             raise ValueError(f"Token inesperado: {current_char}")
@@ -66,8 +56,8 @@ class Parser():
     tokenizer = None
 
     @staticmethod
-    def termExpression():
-
+    def parseExpression():
+        
         #checa o primeiro número
         if Parser.tokenizer.next.type == "NUMBER":
             result = Parser.tokenizer.next.value
@@ -75,46 +65,21 @@ class Parser():
         else:
             raise ValueError("Esperado um número no início da espressão")
             
-        while Parser.tokenizer.next.type in ["MULT", "DIV"]:
+        while Parser.tokenizer.next.type in ["PLUS", "MINUS"]:
             op = Parser.tokenizer.next.type
-
-            if op == "NUMBER":
-                raise ValueError("Número seguido de número")
-                    
             Parser.tokenizer.selectNext()
 
             if Parser.tokenizer.next.type != "NUMBER":
                 raise ValueError("Esperado um número após o operador")
 
             num = Parser.tokenizer.next.value
+            Parser.tokenizer.selectNext()
 
             # Aplica a operação
-            if op == "MULT":
-                result *= num
-            elif op == "DIV":
-                result /= num
-
-            Parser.tokenizer.selectNext() #chamo o próximo operador
-        return result
-
-    @staticmethod
-    def parseExpression():
-        
-        result = Parser.termExpression()
-        
-        while Parser.tokenizer.next.type in ["MINUS", "PLUS"]:
-
-            op = Parser.tokenizer.next.type
-            Parser.tokenizer.selectNext()
-            
-            if Parser.tokenizer.next.type != "NUMBER":
-                raise ValueError("Esperado um número após o operador")
-
-            if op == "MINUS":
-                result -= Parser.termExpression()
             if op == "PLUS":
-                result += Parser.termExpression()
-  
+                result += num
+            elif op == "MINUS":
+                result -= num
 
         return result
         
