@@ -95,7 +95,7 @@ class Parser():
                 result /= num
 
             Parser.tokenizer.selectNext() #chamo o próximo operador
-        return result
+        return int(result)
 
     @staticmethod
     def parseExpression():
@@ -116,7 +116,7 @@ class Parser():
                 result += Parser.termExpression()
   
 
-        return result
+        return int(result)
         
 
     def run(source):
@@ -126,7 +126,7 @@ class Parser():
         if Parser.tokenizer.next.type != "EOF":
             raise ValueError("Entrada não foi finalizada corretamente")
 
-        return result
+        return int(result)
 
 def main():
     if len(sys.argv) > 1:
