@@ -55,14 +55,6 @@ class Tokenizer:
             self.next = Token("DIV", current_char)
             self.position+=1
             return
-        
-        elif current_char == "(":
-            self.next = Token("OPEN_PAR",current_char)
-            self.position+=1
-
-        elif current_char == ")":
-            self.next = Token("CLOSE_PAR", current_char)
-            self.position+=1
 
         else:
             raise ValueError(f"Token inesperado: {current_char}")
@@ -74,48 +66,35 @@ class Parser():
     tokenizer = None
 
     @staticmethod
-    def factorExpression():
-        result = Parser.tokenizer.next.value
-        type = Parser.tokenizer.next.type
-        Parser.tokenizer.selectNext()
-
-        if type == "NUMBER":
-            return result
-        
-        elif result == "+":
-            result = Parser.factorExpression()
-            return result
-
-        elif result == "-":
-            result = -Parser.factorExpression()
-            return result
-
-        elif result == "(":
-            result = Parser.parseExpression()
-            if Parser.tokenizer.next.type != "CLOSE_PAR":
-                raise ValueError("parênteses não foi fechador")
-            Parser.tokenizer.selectNext()
-            return result
-        
-        else:
-            raise ValueError("Erro de entrada")
-
-
-    @staticmethod
     def termExpression():
 
-        result = Parser.factorExpression()
-        
+        #checa o primeiro número
+        if Parser.tokenizer.next.type == "NUMBER":
+            result = Parser.tokenizer.next.value
+            Parser.tokenizer.selectNext()
+        else:
+            raise ValueError("Esperado um número no início da espressão")
+            
         while Parser.tokenizer.next.type in ["MULT", "DIV"]:
-
             op = Parser.tokenizer.next.type
+
+            if op == "NUMBER":
+                raise ValueError("Número seguido de número")
+                    
             Parser.tokenizer.selectNext()
 
-            if op == "DIV":
-                result /= Parser.factorExpression()
+            if Parser.tokenizer.next.type != "NUMBER":
+                raise ValueError("Esperado um número após o operador")
+
+            num = Parser.tokenizer.next.value
+
+            # Aplica a operação
             if op == "MULT":
-                result *= Parser.factorExpression()
-  
+                result *= num
+            elif op == "DIV":
+                result /= num
+
+            Parser.tokenizer.selectNext() #chamo o próximo operador
         return int(result)
 
     @staticmethod
@@ -127,6 +106,9 @@ class Parser():
 
             op = Parser.tokenizer.next.type
             Parser.tokenizer.selectNext()
+            
+            if Parser.tokenizer.next.type != "NUMBER":
+                raise ValueError("Esperado um número após o operador")
 
             if op == "MINUS":
                 result -= Parser.termExpression()
