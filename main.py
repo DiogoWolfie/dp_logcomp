@@ -111,7 +111,7 @@ class BinOp(Node):
         elif self.value == 'MULT':
             return self.children[0].Evaluate() * self.children[1].Evaluate()
         elif self.value == 'DIV':
-            return self.children[1].Evaluate() / self.children[0].Evaluate()
+            return self.children[0].Evaluate() / self.children[1].Evaluate()
         
 
 #UnOp - Operação unária
@@ -183,7 +183,7 @@ class Parser():
             op = Parser.tokenizer.next.type
             Parser.tokenizer.selectNext()
 
-            result =  BinOp(op,Parser.factorExpression(), result)
+            result =  BinOp(op,result,Parser.factorExpression())
         
         return result
 
@@ -198,7 +198,7 @@ class Parser():
             op = Parser.tokenizer.next.type
             Parser.tokenizer.selectNext()
 
-            result =  BinOp(op,Parser.termExpression(), result)
+            result =  BinOp(op,result,Parser.termExpression())
     
         return result
         
