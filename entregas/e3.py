@@ -1,5 +1,4 @@
 import sys
-from abc import ABC, abstractmethod
 
 #classe token/palavra
 #será definida pelo seu tipo e seu valor
@@ -8,23 +7,6 @@ class Token:
         self.type = type
         self.value = value
 
-#classe de pré-processamento - retirar comentários (// no go)
-class PrePro:
-    def __init__(self, source):
-        self.source = source
-        self.filtered_source = self.filter()
-
-    def filter(self):
-        lines = self.source.split("\n")  # Divide em linhas
-        clean_lines = []
-        
-        for line in lines:
-            if "//" in line:
-                line = line.split("//")[0]  
-            clean_lines.append(line.strip())  
-
-        return "\n".join(clean_lines)  
-    
 
 #classe de tokenização - análise léxica
 class Tokenizer:
@@ -86,83 +68,26 @@ class Tokenizer:
             raise ValueError(f"Token inesperado: {current_char}")
         
 
-"""AST - Abstract Syntax Tree"""
-class Node(ABC):
-    def __init__(self, value, children):
-        self.value = value
-        self.children = children
-
-    @abstractmethod
-    def Evaluate(self):
-        pass
-        
-    pass
-
-#BinOp - Operações binárias
-class BinOp(Node):
-    def __init__(self, value, children_left, children_right):
-        super().__init__(value, [children_left,children_right])
-    
-    def Evaluate(self):
-        if self.value == 'PLUS':
-            return self.children[0].Evaluate() + self.children[1].Evaluate()
-        elif self.value == 'MINUS':
-            return self.children[0].Evaluate() - self.children[1].Evaluate()
-        elif self.value == 'MULT':
-            return self.children[0].Evaluate() * self.children[1].Evaluate()
-        elif self.value == 'DIV':
-            return self.children[0].Evaluate() / self.children[1].Evaluate()
-        
-
-#UnOp - Operação unária
-class UnOp(Node):
-    def __init__(self, value, children):
-        super().__init__(value, [children])
-    
-    def Evaluate(self):
-        if self.value == "+":
-            return self.children[0].Evaluate()
-        elif self.value == "-":
-            return -self.children[0].Evaluate()
-
-#IntVal - Valor inteiro - não tem filho
-class IntVal(Node):
-    def __init__(self, value):
-        super().__init__(value, [])
-    
-    def Evaluate(self):
-        return self.value
-    
-#NoOp - sem operaação
-class NoOp(Node):
-    def __init__(self):
-        super().__init__(0, [])
-    def Evaluate(self):
-        pass
-    
-"""Fim da AST"""
-
-
 #análise sintática - checa a ordem das palavras
 #talvez eu precise colocar um check aqui para o caso do próximo valor depois de um número seja um número tbm sem 
 class Parser():
     tokenizer = None
 
     @staticmethod
-    def factorExpression() -> Node:
+    def factorExpression():
         result = Parser.tokenizer.next.value
         type = Parser.tokenizer.next.type
         Parser.tokenizer.selectNext()
 
         if type == "NUMBER":
-            return IntVal(result)
+            return result
         
         elif result == "+":
-            result = UnOp("+",[Parser.factorExpression()])
+            result = Parser.factorExpression()
             return result
 
         elif result == "-":
-            result = UnOp("-",[Parser.factorExpression()])
+            result = -Parser.factorExpression()
             return result
 
         elif result == "(":
@@ -177,7 +102,7 @@ class Parser():
 
 
     @staticmethod
-    def termExpression() -> Node:
+    def termExpression():
 
         result = Parser.factorExpression()
         
@@ -186,13 +111,15 @@ class Parser():
             op = Parser.tokenizer.next.type
             Parser.tokenizer.selectNext()
 
-            result =  BinOp(op,[Parser.factorExpression(), result])
-                
-        return result
-
+            if op == "DIV":
+                result /= Parser.factorExpression()
+            if op == "MULT":
+                result *= Parser.factorExpression()
+  
+        return int(result)
 
     @staticmethod
-    def parseExpression() -> Node:
+    def parseExpression():
         
         result = Parser.termExpression()
         
@@ -201,12 +128,13 @@ class Parser():
             op = Parser.tokenizer.next.type
             Parser.tokenizer.selectNext()
 
-            op = Parser.tokenizer.next.type
-            Parser.tokenizer.selectNext()
+            if op == "MINUS":
+                result -= Parser.termExpression()
+            if op == "PLUS":
+                result += Parser.termExpression()
+  
 
-            result =  BinOp(op,[Parser.factorExpression(), result])
-                
-        return result
+        return int(result)
         
 
     def run(source):
@@ -216,28 +144,18 @@ class Parser():
         if Parser.tokenizer.next.type != "EOF":
             raise ValueError("Entrada não foi finalizada corretamente")
 
-        return result.Evaluate() #chama os resultados da árvore
+        return int(result)
 
 def main():
     if len(sys.argv) > 1:
-        filename = sys.argv[1]
+        source = "".join(sys.argv[1:])
 
         try:
-            with open(filename, 'r', encoding='utf-8') as file:
-                 source = file.read()
-
-            # Passa o código pelo prepro
-            prepro = PrePro(source)
-            processed_source = prepro.filtered_source
-
-            result = Parser.run(processed_source)
+            result = Parser.run(source)
             print(result)
-
-        except FileNotFoundError:
-            sys.stderr.write(f"Erro: Arquivo '{filename}' não encontrado.\n")
         except ValueError as e:
             sys.stderr.write(str(e) + '\n')
-
+    
     else:
         sys.stderr.write("nenhuma entrada à ser processada" + '\n')
 
