@@ -111,19 +111,19 @@ class BinOp(Node):
         elif self.value == 'MULT':
             return self.children[0].Evaluate() * self.children[1].Evaluate()
         elif self.value == 'DIV':
-            return self.children[0].Evaluate() / self.children[1].Evaluate()
+            return self.children[1].Evaluate() / self.children[0].Evaluate()
         
 
 #UnOp - Operação unária
 class UnOp(Node):
     def __init__(self, value, children):
-        super().__init__(value, [children])
+        super().__init__(value, children)
     
     def Evaluate(self):
         if self.value == "+":
-            return self.children[0].Evaluate()
+            return self.children.Evaluate()
         elif self.value == "-":
-            return -self.children[0].Evaluate()
+            return -self.children.Evaluate()
 
 #IntVal - Valor inteiro - não tem filho
 class IntVal(Node):
@@ -157,15 +157,17 @@ class Parser():
             return IntVal(token.value) 
         
         elif token.value == "+":  
-            return UnOp("+", [Parser.factorExpression()])
+            return UnOp("+", Parser.factorExpression())
 
         elif token.value == "-":
-            return UnOp("-", [Parser.factorExpression()])
+            return UnOp("-", Parser.factorExpression())
 
         elif token.value == "(":
+            
             result = Parser.parseExpression()
             if Parser.tokenizer.next.type != "CLOSE_PAR":
                 raise ValueError("Parênteses não foi fechado")
+
             Parser.tokenizer.selectNext()  # Consumir `)`
             return result
         
@@ -175,8 +177,7 @@ class Parser():
     @staticmethod
     def termExpression() -> Node:
 
-        result = Parser.factorExpression()
-        
+        result = Parser.factorExpression() 
         while Parser.tokenizer.next.type in ["MULT", "DIV"]:
 
             op = Parser.tokenizer.next.type
@@ -191,14 +192,14 @@ class Parser():
     def parseExpression() -> Node:
         
         result = Parser.termExpression()
-        
+      
         while Parser.tokenizer.next.type in ["MINUS", "PLUS"]:
 
             op = Parser.tokenizer.next.type
             Parser.tokenizer.selectNext()
 
             result =  BinOp(op,Parser.termExpression(), result)
-        
+    
         return result
         
 
@@ -223,7 +224,7 @@ def main():
             prepro = PrePro(source)
             processed_source = prepro.filtered_source
             result = Parser.run(processed_source)
-            print(result)
+            print(int(result))
 
         except FileNotFoundError:
             sys.stderr.write(f"Erro: Arquivo '{filename}' não encontrado.\n")
