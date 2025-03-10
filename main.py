@@ -150,31 +150,27 @@ class Parser():
 
     @staticmethod
     def factorExpression() -> Node:
-        result = Parser.tokenizer.next.value
-        type = Parser.tokenizer.next.type
+        token = Parser.tokenizer.next  
         Parser.tokenizer.selectNext()
 
-        if type == "NUMBER":
-            return IntVal(result)
+        if token.type == "NUMBER":
+            return IntVal(token.value) 
         
-        elif result == "+":
-            result = UnOp("+",[Parser.factorExpression()])
-            return result
+        elif token.value == "+":  
+            return UnOp("+", [Parser.factorExpression()])
 
-        elif result == "-":
-            result = UnOp("-",[Parser.factorExpression()])
-            return result
+        elif token.value == "-":
+            return UnOp("-", [Parser.factorExpression()])
 
-        elif result == "(":
+        elif token.value == "(":
             result = Parser.parseExpression()
             if Parser.tokenizer.next.type != "CLOSE_PAR":
-                raise ValueError("parênteses não foi fechador")
-            Parser.tokenizer.selectNext() #consumir o )
+                raise ValueError("Parênteses não foi fechado")
+            Parser.tokenizer.selectNext()  # Consumir `)`
             return result
         
         else:
             raise ValueError("Erro de entrada")
-
 
     @staticmethod
     def termExpression() -> Node:
@@ -186,8 +182,8 @@ class Parser():
             op = Parser.tokenizer.next.type
             Parser.tokenizer.selectNext()
 
-            result =  BinOp(op,[Parser.factorExpression(), result])
-                
+            result =  BinOp(op,Parser.factorExpression(), result)
+        
         return result
 
 
@@ -201,11 +197,8 @@ class Parser():
             op = Parser.tokenizer.next.type
             Parser.tokenizer.selectNext()
 
-            op = Parser.tokenizer.next.type
-            Parser.tokenizer.selectNext()
-
-            result =  BinOp(op,[Parser.factorExpression(), result])
-                
+            result =  BinOp(op,Parser.termExpression(), result)
+        
         return result
         
 
@@ -229,7 +222,6 @@ def main():
             # Passa o código pelo prepro
             prepro = PrePro(source)
             processed_source = prepro.filtered_source
-
             result = Parser.run(processed_source)
             print(result)
 
