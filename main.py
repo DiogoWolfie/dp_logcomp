@@ -309,6 +309,9 @@ class Parser():
                     raise ValueError("print sem quebra de linha")
             else:
                 raise ValueError("print sem abre parênteses")
+            
+        else:
+            raise ValueError("statemente mal inicalizado")
 
 
     @staticmethod
