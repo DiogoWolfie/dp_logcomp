@@ -57,12 +57,12 @@ class Tokenizer:
             self.next = Token("NUMBER", value)
             return
             
-        elif current_char.isalpha():
-            p = re.compile(r'[A-Za-z][A-Za-z0-9_]*(?!\=)')
+        elif current_char.isalpha() or current_char == "_":
             identifier = ''
-            while self.position < len(self.source) and p.match(self.source[self.position]):
-                identifier += self.source[self.position] #espero que funcione
-                self.position+=1
+            while self.position < len(self.source) and (self.source[self.position].isalnum() or self.source[self.position] == "_"):
+                identifier += self.source[self.position]
+                self.position += 1
+
             if identifier in palavras_reservadas:
                 self.next= Token("PRINT", identifier)
             else:
@@ -261,11 +261,12 @@ class Parser():
     
     @staticmethod
     def Statement() -> Node:
-        #no momento que chama do statement o token atual é \n
+
         result = None
         
         #caso 1: é um blocok vazio
         if Parser.tokenizer.next.type == "ENTER":
+            Parser.tokenizer.selectNext()
             return NoOp()
         
         #caso 2: tem um identificador que precisa ser seguido de um =
