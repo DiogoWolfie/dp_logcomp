@@ -54,6 +54,8 @@ class Tokenizer:
             while self.position < len(self.source) and self.source[self.position].isdigit():
                 value = value * 10 + int(self.source[self.position])
                 self.position += 1
+                if self.position < len(self.source) and (self.source[self.position].isalpha() or self.source[self.position] == "_"):
+                    raise ValueError("Número seguido de letra ou underscore inválido")  
             self.next = Token("NUMBER", value)
             return
             
