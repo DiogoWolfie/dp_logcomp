@@ -45,11 +45,8 @@ class Tokenizer:
                 elif identifier == "else": 
                     self.next = Token("ELSE", identifier)
                     return
-                elif identifier == "while":
-                    self.next = Token("WHILE", identifier)
-                    return
                 elif identifier == "for":
-                    self.next = Token("FOR", identifier)
+                    self.next = Token("WHILE", identifier)
                     return
                 elif identifier == "Println":
                     self.next= Token("PRINT", identifier)

@@ -50,6 +50,7 @@ class Parser():
         
         #caso 2: tem um identificador que precisa ser seguido de um =
         elif Parser.tokenizer.next.type == "IDENTIFIER":
+            
             indentifier = Parser.tokenizer.next.value
             Parser.tokenizer.selectNext()#consome o identificador
 
@@ -190,8 +191,8 @@ class Parser():
     @staticmethod
     def RelExpression() -> Node:
         result = Parser.parseExpression()
-
         while Parser.tokenizer.next.type in ["EQUAL_EQUAL", "LESS", "GREATER"]:
+            
             op = Parser.tokenizer.next.type
             Parser.tokenizer.selectNext()
             result = BinOp(op, result, Parser.parseExpression())
