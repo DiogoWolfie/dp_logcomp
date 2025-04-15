@@ -19,25 +19,24 @@ class Parser():
 
     @staticmethod
     def Block() -> Node:
-        token = Parser.tokenizer.next
+        token = Parser.tokenizer.next  # Primeiro verifica o token atual
+        
+        if token.type != "OPEN_KEY":
+            raise ValueError("Erro na inicialização do bloco, sem {")
+        
+        Parser.tokenizer.selectNext()  # Só então consome o "{"
         statements = []
-        Parser.tokenizer.selectNext()
-
-        if token.type == "OPEN_KEY":
         
-            if Parser.tokenizer.next.type == "ENTER":
-                Parser.tokenizer.selectNext()
-                while Parser.tokenizer.next.type != "CLOSE_KEY":
-                    stmt = Parser.Statement()
-                    statements.append(stmt)
-            else:
-                raise ValueError("esperado ENTER após {")
-            
-            Parser.tokenizer.selectNext()#acredito que irá consumir o }
-            return NoBlc(statements)
-        
+        if Parser.tokenizer.next.type == "ENTER":
+            Parser.tokenizer.selectNext()
+            while Parser.tokenizer.next.type != "CLOSE_KEY":
+                stmt = Parser.Statement()
+                statements.append(stmt)
         else:
-            raise ValueError("Erro na incialização do bloco, sem {")
+            raise ValueError("esperado ENTER após {")
+        
+        Parser.tokenizer.selectNext()  # Consome o "}"
+        return NoBlc(statements)
     
     @staticmethod
     def Statement() -> Node:
@@ -56,8 +55,8 @@ class Parser():
 
             if Parser.tokenizer.next.type == "EQUAL":
                 Parser.tokenizer.selectNext()  # consome o '='
-                result = NoAt(indentifier, Parser.parseExpression())
-
+                result = NoAt(indentifier, Parser.BExpression())
+            
                 #checo se o proximo é realemtne um \n
                 if Parser.tokenizer.next.type == "ENTER":
                     Parser.tokenizer.selectNext()
@@ -74,7 +73,7 @@ class Parser():
 
             if Parser.tokenizer.next.type == "OPEN_PAR":
                 Parser.tokenizer.selectNext() #preciso consimir o abre parenteses do print
-                result = NoPrt(Parser.parseExpression())
+                result = NoPrt(Parser.BExpression())
         
                 if Parser.tokenizer.next.type != "CLOSE_PAR":
                     raise ValueError("print não fechou parênteses")
@@ -101,25 +100,22 @@ class Parser():
         
         #caso 5: é um if - tem que considerar o else tbm
         elif Parser.tokenizer.next.type == "IF":
-            Parser.tokenizer.selectNext() #consumir o if
-
-            result = IfNode(Parser.BExpression(), Parser.Block())
-            #caso tenha um else:
-            maybe_else = Parser.tokenizer.next.type
-            if maybe_else == "ELSE":
-                result = IfNode(Parser.BExpression(), Parser.Block(), Parser.Block())
-
-                if Parser.tokenizer.next.type == "ENTER":
-                    Parser.tokenizer.selectNext()
-                    return result
-                else:
-                    raise ValueError("else sem quebra de linha")
+            Parser.tokenizer.selectNext()
+            condition = Parser.BExpression()
+            if_block = Parser.Block()
+            
+            if Parser.tokenizer.next.type == "ELSE":
+                Parser.tokenizer.selectNext()
+                else_block = Parser.Block()
+                result = IfNode(condition, if_block, else_block)
             else:
-                if Parser.tokenizer.next.type == "ENTER":
-                    Parser.tokenizer.selectNext()
-                    return result
-                else:
-                    raise ValueError("if sem quebra de linha")
+                result = IfNode(condition, if_block)
+            
+            if Parser.tokenizer.next.type == "ENTER":
+                Parser.tokenizer.selectNext()
+                return result
+            else:
+                raise ValueError("if/else sem quebra de linha")
 
 
         else:
@@ -128,12 +124,13 @@ class Parser():
 
     @staticmethod
     def factorExpression() -> Node:
+        
         token = Parser.tokenizer.next  
         Parser.tokenizer.selectNext()
 
         if token.type == "NUMBER":
             return IntVal(token.value) 
-        
+
         elif token.value == "+":  
             return UnOp("+", Parser.factorExpression())
 
@@ -144,7 +141,6 @@ class Parser():
             return UnOp(token.value, Parser.factorExpression()) #se der ruim, trocar por token.type
 
         elif token.value == "(":
-            
             result = Parser.BExpression()
             if Parser.tokenizer.next.type != "CLOSE_PAR":
                 raise ValueError("Parênteses não foi fechado")
@@ -156,13 +152,13 @@ class Parser():
             return NoId(token.value)
 
         elif token.type == "READ":
-            Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == "OPEN_PAR":
                 Parser.tokenizer.selectNext()
                 if Parser.tokenizer.next.type != "CLOSE_PAR":
                     raise ValueError("read não fechou parênteses")
+            
                 Parser.tokenizer.selectNext()
-                return ReadNode(token.value)
+                return ReadNode()
         else:
             raise ValueError("Erro de entrada")
 

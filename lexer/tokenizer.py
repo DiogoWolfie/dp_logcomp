@@ -10,7 +10,7 @@ class Tokenizer:
 
     def selectNext(self):
         
-        palavras_reservadas = ["Println", "if", "else", "while", "for"]
+        palavras_reservadas = ["Println", "if", "else", "while", "for", "Scan", "||", "&&"]
 
         #iginora todos os espaços em branco
         while self.position < len(self.source) and self.source[self.position] in [' ', '\t']:
@@ -41,19 +41,25 @@ class Tokenizer:
             if identifier in palavras_reservadas:
                 if identifier == "if":
                     self.next = Token("IF", identifier)
+                    return
                 elif identifier == "else": 
                     self.next = Token("ELSE", identifier)
+                    return
                 elif identifier == "while":
                     self.next = Token("WHILE", identifier)
+                    return
                 elif identifier == "for":
                     self.next = Token("FOR", identifier)
+                    return
                 elif identifier == "Println":
                     self.next= Token("PRINT", identifier)
+                    return
                 elif identifier == "Scan":
                     self.next= Token("READ", identifier)
+                    return
             else:
                 self.next= Token("IDENTIFIER", identifier)
-            pass
+                return
 
         elif current_char == '\n':
             self.next = Token("ENTER", 'enter')
@@ -108,15 +114,20 @@ class Tokenizer:
             self.position+=1
             return
         
-        elif current_char == "||":
-            self.next = Token("OR", current_char)
+        elif current_char == "|":
             self.position+=1
-            return
+            if self.position < len(self.source) and self.source[self.position] == "|":
+                self.next = Token("OR", current_char + self.source[self.position])
+                self.position+=1
+                return
+            
         
-        elif current_char == "&&":
-            self.next = Token("AND", current_char)
+        elif current_char == "&":
             self.position+=1
-            return
+            if self.position < len(self.source) and self.source[self.position] == "&":
+                self.next = Token("AND", current_char + self.source[self.position])
+                self.position+=1
+                return
         
         elif current_char == "<":
             self.next = Token("LESS", current_char)
