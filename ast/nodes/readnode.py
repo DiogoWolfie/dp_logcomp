@@ -19,4 +19,4 @@ class ReadNode(Node):
     
     def Evaluate(self, st):
         # Lê do terminal e converte para inteiro
-        return int(input("> "))
+        return int(input(">"))
