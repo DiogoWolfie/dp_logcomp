@@ -1,9 +1,9 @@
 from ast.node import Node
 
-#IntVal - Valor inteiro - não tem filho
-class IntVal(Node):
+#String node, nó da string
+class StrNode(Node):
     def __init__(self, value):
         super().__init__(value, [])
     
     def Evaluate(self, SymbolTable):
-        return ("int", int(self.value))
+        return ("string", str(self.value))

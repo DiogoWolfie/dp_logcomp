@@ -10,6 +10,10 @@ from ast.nodes.binop import BinOp
 from ast.nodes.whilenode import WhileNode
 from ast.nodes.ifnode import IfNode
 from ast.nodes.readnode import ReadNode
+from ast.nodes.strnode import StrNode
+from ast.nodes.boolnode import BoolNode
+from ast.nodes.typenode import TypeNode
+from ast.nodes.varnode import VarNode #tem que ter um jeito mais fácil de importar isso
 from ast.node import Node
 
 #análise sintática - checa a ordem das palavras
@@ -117,6 +121,34 @@ class Parser():
                 return result
             else:
                 raise ValueError("if/else sem quebra de linha")
+            
+        #caso 5: é um var idem type (var x int = 3)
+        if Parser.tokenizer.next.type == "VAR":
+            
+            Parser.tokenizer.selectNext() #consome o var
+            if Parser.tokenizer.next.type == "IDENTIFIER":
+                
+                id = Parser.tokenizer.next.value
+                Parser.tokenizer.selectNext()#consome o id
+
+                if Parser.tokenizer.next.type == "TYPE":
+                    tipo = TypeNode(Parser.tokenizer.next.value)
+                    Parser.tokenizer.selectNext()#consome o tipo
+
+                    if Parser.tokenizer.next.type == "EQUAL":
+                        Parser.tokenizer.selectNext() #consome o igual
+                        return NoAt(id, tipo, Parser.BExpression())
+                    else:
+                        return VarNode(id, tipo)
+
+                else:
+                    raise ValueError("tipo não declarado")
+            else:
+                raise ValueError("sem identificador no var")
+
+        
+            
+
 
 
         else:
@@ -130,7 +162,7 @@ class Parser():
         Parser.tokenizer.selectNext()
 
         if token.type == "NUMBER":
-            return IntVal(token.value) 
+            return IntVal(token.value)  
 
         elif token.value == "+":  
             return UnOp("+", Parser.factorExpression())
@@ -151,6 +183,14 @@ class Parser():
         
         elif token.type == "IDENTIFIER":
             return NoId(token.value)
+
+        elif token.type == "STRING":
+            return StrNode(token.value)
+        
+        elif token.type == "BOOL":
+            return BoolNode(token.value)
+
+
 
         elif token.type == "READ":
             if Parser.tokenizer.next.type == "OPEN_PAR":

@@ -10,7 +10,7 @@ class Tokenizer:
 
     def selectNext(self):
         
-        palavras_reservadas = ["Println", "if", "else", "while", "for", "Scan", "||", "&&"]
+        palavras_reservadas = ["Println", "if", "else", "while", "for", "Scan", "||", "&&", "var", "int", "float", "string", "bool", "true", "false"] #palavras reservadas da linguagem
 
         #iginora todos os espaços em branco
         while self.position < len(self.source) and self.source[self.position] in [' ', '\t']:
@@ -21,6 +21,22 @@ class Tokenizer:
             return
 
         current_char = self.source[self.position]
+
+        #procurando string
+        if current_char == '"':
+            self.position += 1  # pula o caractere inicial de aspas
+            string_value = ''
+            
+            while self.position < len(self.source) and self.source[self.position] != '"':
+                string_value += self.source[self.position]
+                self.position += 1
+
+            if self.position >= len(self.source):
+                raise ValueError("String sem aspas de fechamento")
+
+            self.position += 1  # pula a aspa de fechamento
+            self.next = Token("STRING", string_value)
+            return
 
         if current_char.isdigit():
             value = 0
@@ -53,6 +69,24 @@ class Tokenizer:
                     return
                 elif identifier == "Scan":
                     self.next= Token("READ", identifier)
+                    return
+                elif identifier == "var":
+                    self.next = Token("VAR", identifier)
+                    return
+                elif identifier == "int":
+                    self.next = Token("TYPE", identifier)
+                    return
+                elif identifier == "bool":
+                    self.next = Token("TYPE", identifier)
+                    return
+                elif identifier == "string":
+                    self.next = Token("TYPE", identifier)
+                    return
+                elif identifier == "true":
+                    self.next = Token("BOOL", identifier)
+                    return
+                elif identifier == "false":
+                    self.next = Token("BOOL", identifier)
                     return
             else:
                 self.next= Token("IDENTIFIER", identifier)

@@ -7,3 +7,4 @@ class NoId(Node):
     
     def Evaluate(self, SymbolTable):
         return SymbolTable.get(self.value)
+    

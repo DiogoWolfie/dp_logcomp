@@ -6,9 +6,18 @@ class UnOp(Node):
         super().__init__(value, children)
     
     def Evaluate(self, SymbolTable):
-        if self.value == "+":
-            return self.children.Evaluate(SymbolTable)
-        elif self.value == "-":
-            return -self.children.Evaluate(SymbolTable)
-        elif self.value == "!":
-            return not self.children.Evaluate(SymbolTable) #booleano
+        tipo, val = self.children.Evaluate(SymbolTable)
+        if tipo == "int":
+            if self.value == "+":
+                return val
+            elif self.value == "-":
+                return -val
+            elif self.value == "!":
+                raise ValueError("Operador '!' não pode ser aplicado a um inteiro")
+        elif tipo == "bool":
+            if self.value == "+":
+                raise ValueError("Operador '+' não pode ser aplicado a um booleano")
+            elif self.value == "-":
+                raise ValueError("Operador '-' não pode ser aplicado a um booleano")
+            elif self.value == "!":
+                return not val

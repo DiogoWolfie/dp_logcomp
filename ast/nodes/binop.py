@@ -6,22 +6,43 @@ class BinOp(Node):
         super().__init__(value, [children_left,children_right])
     
     def Evaluate(self, SymbolTable):
-        if self.value == 'PLUS':
-            return self.children[0].Evaluate(SymbolTable) + self.children[1].Evaluate(SymbolTable)
-        elif self.value == 'MINUS':
-            return self.children[0].Evaluate(SymbolTable) - self.children[1].Evaluate(SymbolTable)
-        elif self.value == 'MULT':
-            return self.children[0].Evaluate(SymbolTable) * self.children[1].Evaluate(SymbolTable)
-        elif self.value == 'DIV':
-            return self.children[0].Evaluate(SymbolTable) / self.children[1].Evaluate(SymbolTable)
-        elif self.value == "EQUAL_EQUAL":
-            return self.children[0].Evaluate(SymbolTable) == self.children[1].Evaluate(SymbolTable) #retorna booleano
-        elif self.value == "LESS":
-            return self.children[0].Evaluate(SymbolTable) < self.children[1].Evaluate(SymbolTable)
-        elif self.value == "GREATER":
-            return self.children[0].Evaluate(SymbolTable) > self.children[1].Evaluate(SymbolTable)
-        elif self.value == "AND":
-            return self.children[0].Evaluate(SymbolTable) and self.children[1].Evaluate(SymbolTable)
-        elif self.value == "OR":
-            return self.children[0].Evaluate(SymbolTable) or self.children[1].Evaluate(SymbolTable)
+        tipo1, val1 = self.children[0].Evaluate(SymbolTable)
+        tipo2, val2 = self.children[1].Evaluate(SymbolTable)
+        
+        if tipo1 == "int" and tipo2 == "int":
+            if self.value == 'PLUS':
+                return ("int", val1 + val2)
+            elif self.value == 'MINUS':
+                return ("int", val1 - val2)
+            elif self.value == 'MULT':
+                return ("int", val1 * val2)
+            elif self.value == 'DIV':
+                return ("int", val1 // val2) # Divisão inteira
+            elif self.value == "EQUAL_EQUAL":
+                return ("bool", bool(val1 == val2))
+            elif self.value == "LESS":
+                return ("bool", bool(val1 < val2))
+            elif self.value == "GREATER":
+                return ("bool", bool(val1 > val2))
+        
+        elif tipo1 =="bool" and tipo2 == "bool":
+            if self.value == "AND":
+                return ("bool", val1 and val2)
+            elif self.value == "OR":
+                return ("bool", val1 or val2)
+            elif self.value == "EQUAL_EQUAL":
+                return ("bool", bool(val1 == val2))
+            
+        elif tipo1 == "string" and tipo2 == "string":
+            if self.value == "PLUS":
+                return ("string", val1 + val2)
+            elif self.value == "EQUAL_EQUAL":
+                return ("bool", val1 == val2)
+            elif self.value == "LESS":
+                return ("bool", bool(val1 < val2))
+            elif self.value == "GREATER":
+                return ("bool", bool(val1 > val2))
+            
+        
+        raise ValueError(f"Operador binário desconhecido: {self.value}")
         
