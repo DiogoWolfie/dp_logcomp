@@ -19,11 +19,11 @@ class BinOp(Node):
             elif self.value == 'DIV':
                 return ("int", val1 // val2) # Divisão inteira
             elif self.value == "EQUAL_EQUAL":
-                return ("bool", bool(val1 == val2))
+                return ("bool", val1 == val2)
             elif self.value == "LESS":
-                return ("bool", bool(val1 < val2))
+                return ("bool", val1 < val2)
             elif self.value == "GREATER":
-                return ("bool", bool(val1 > val2))
+                return ("bool", val1 > val2)
         
         elif tipo1 =="bool" and tipo2 == "bool":
             if self.value == "AND":
@@ -31,17 +31,17 @@ class BinOp(Node):
             elif self.value == "OR":
                 return ("bool", val1 or val2)
             elif self.value == "EQUAL_EQUAL":
-                return ("bool", bool(val1 == val2))
+                return ("bool", val1 == val2)
         
         else:
             if self.value == "PLUS":
                 return ("string", str(val1) + str(val2))
             elif self.value == "EQUAL_EQUAL":
-                return ("bool", bool(val1 == val2))
+                return ("bool", val1 == val2)
             elif self.value == "LESS":
-                return ("bool", bool(val1 < val2))
+                return ("bool", val1 < val2)
             elif self.value == "GREATER":
-                return ("bool", bool(val1 > val2))
+                return ("bool", val1 > val2)
             
         
         raise ValueError(f"Operador binário desconhecido: {self.value}")

@@ -6,4 +6,4 @@ class NoPrt(Node):
         super().__init__(None,children)
     def Evaluate(self, SymbolTable):
         tipo, valor = self.children.Evaluate(SymbolTable)
-        return print(valor)
+        return print(str(valor).lower())

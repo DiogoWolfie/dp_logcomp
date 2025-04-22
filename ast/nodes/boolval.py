@@ -5,3 +5,4 @@ class BoolVal(Node):
         super().__init__(value,[])
     def Evaluate(self, SymbolTable):
         return ("bool", bool(self.value))
+    
