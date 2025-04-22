@@ -36,8 +36,6 @@ class BinOp(Node):
         else:
             if self.value == "PLUS":
                 return ("string", str(val1) + str(val2))
-            elif self.value == "EQUAL_EQUAL":
-                return ("bool", val1 == val2)
             elif self.value == "LESS":
                 return ("bool", val1 < val2)
             elif self.value == "GREATER":
