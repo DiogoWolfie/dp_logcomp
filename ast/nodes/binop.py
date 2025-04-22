@@ -32,12 +32,12 @@ class BinOp(Node):
                 return ("bool", val1 or val2)
             elif self.value == "EQUAL_EQUAL":
                 return ("bool", bool(val1 == val2))
-            
-        elif tipo1 == "string" and tipo2 == "string":
+        
+        else:
             if self.value == "PLUS":
-                return ("string", val1 + val2)
+                return ("string", str(val1) + str(val2))
             elif self.value == "EQUAL_EQUAL":
-                return ("bool", val1 == val2)
+                return ("bool", bool(val1 == val2))
             elif self.value == "LESS":
                 return ("bool", bool(val1 < val2))
             elif self.value == "GREATER":
