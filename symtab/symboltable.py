@@ -22,3 +22,7 @@ class SymbolTable():
             raise ValueError(f"Variável '{name}' não foi declarada")
         type, _ = self._table[name]
         self._table[name] = (type, value)
+
+    def get_type(self, name):
+        type, _ = self._table[name]
+        return type

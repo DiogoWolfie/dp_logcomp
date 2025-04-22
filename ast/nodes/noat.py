@@ -10,6 +10,10 @@ class NoAt(Node):
     def Evaluate(self, SymbolTable):
         
         tipo, val = self.valor.Evaluate(SymbolTable)
-        SymbolTable.set(self.identifier, val)
+        tipo_na_tabela = SymbolTable.get_type(self.identifier)
+        if tipo != tipo_na_tabela:
+            raise ValueError("tipo declarado diferente do tipo do atribuido")
+        else:
+            SymbolTable.set(self.identifier, val)
         return None
            
