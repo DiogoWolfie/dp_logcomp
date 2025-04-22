@@ -6,6 +6,6 @@ class VarNode(Node):
         self.value = value
         self.type = type
     def Evaluate(self, SymbolTable):
-        tipo = self.type.Evaluate(SymbolTable)
-        SymbolTable.create(self.value, tipo[1])
+        _,tipo  = self.type.Evaluate(SymbolTable)
+        SymbolTable.create(self.value, tipo)
         return None

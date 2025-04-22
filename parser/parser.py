@@ -11,7 +11,7 @@ from ast.nodes.whilenode import WhileNode
 from ast.nodes.ifnode import IfNode
 from ast.nodes.readnode import ReadNode
 from ast.nodes.strnode import StrNode
-from ast.nodes.boolnode import BoolNode
+from ast.nodes.boolval import BoolVal
 from ast.nodes.typenode import TypeNode
 from ast.nodes.varnode import VarNode #tem que ter um jeito mais fácil de importar isso
 from ast.node import Node
@@ -122,12 +122,10 @@ class Parser():
             else:
                 raise ValueError("if/else sem quebra de linha")
             
-        #caso 5: é um var idem type (var x int = 3)
-        if Parser.tokenizer.next.type == "VAR":
-            
+        #caso 6: é um var idem type (var x int = 3)
+        elif Parser.tokenizer.next.type == "VAR":
             Parser.tokenizer.selectNext() #consome o var
             if Parser.tokenizer.next.type == "IDENTIFIER":
-                
                 id = Parser.tokenizer.next.value
                 Parser.tokenizer.selectNext()#consome o id
 
@@ -135,12 +133,15 @@ class Parser():
                     tipo = TypeNode(Parser.tokenizer.next.value)
                     Parser.tokenizer.selectNext()#consome o tipo
 
+                    # Primeiro cria a variável na symbol table
+                    var_node = VarNode(id, tipo)
+                    
                     if Parser.tokenizer.next.type == "EQUAL":
                         Parser.tokenizer.selectNext() #consome o igual
-                        return NoAt(id, tipo, Parser.BExpression())
+                        # Depois faz a atribuição
+                        return NoBlc([var_node,NoAt(id, Parser.BExpression())])
                     else:
-                        return VarNode(id, tipo)
-
+                        return var_node
                 else:
                     raise ValueError("tipo não declarado")
             else:
@@ -187,8 +188,9 @@ class Parser():
         elif token.type == "STRING":
             return StrNode(token.value)
         
+        #variavel true ou false
         elif token.type == "BOOL":
-            return BoolNode(token.value)
+            return BoolVal(token.value)
 
 
 

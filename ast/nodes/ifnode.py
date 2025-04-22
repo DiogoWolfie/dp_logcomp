@@ -9,8 +9,14 @@ class IfNode(Node):
         self.else_block = else_block
 
     def Evaluate(self, SymbolTable):
-        if self.condition.Evaluate(SymbolTable):
+        tipo, cond = self.condition.Evaluate(SymbolTable)
+
+        if tipo != "bool":
+            raise TypeError("A condição do if deve ser booleana")
+
+        if cond:
             self.block.Evaluate(SymbolTable)
         elif self.else_block is not None:
             self.else_block.Evaluate(SymbolTable)
+
         return None

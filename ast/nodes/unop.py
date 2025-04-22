@@ -9,9 +9,9 @@ class UnOp(Node):
         tipo, val = self.children.Evaluate(SymbolTable)
         if tipo == "int":
             if self.value == "+":
-                return val
+                return ("int",val)
             elif self.value == "-":
-                return -val
+                return ("int",-val)
             elif self.value == "!":
                 raise ValueError("Operador '!' não pode ser aplicado a um inteiro")
         elif tipo == "bool":
@@ -20,4 +20,4 @@ class UnOp(Node):
             elif self.value == "-":
                 raise ValueError("Operador '-' não pode ser aplicado a um booleano")
             elif self.value == "!":
-                return not val
+                return ("bool",not val)
