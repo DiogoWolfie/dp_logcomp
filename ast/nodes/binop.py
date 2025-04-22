@@ -43,13 +43,14 @@ class BinOp(Node):
             elif self.value == "EQUAL_EQUAL":
                 return ("bool", val1 == val2)
         
-        else:
+        elif (tipo1 == 'int' and tipo2 == "string") or (tipo2 == 'int' and tipo1 == "string") or (tipo1 == 'bool' and tipo2 == "string") or (tipo2 == 'bool' and tipo1 == "string"):
             if self.value == "PLUS":
                 return ("string", str(val1) + str(val2))
             elif self.value == "LESS":
                 return ("bool", val1 < val2)
             elif self.value == "GREATER":
                 return ("bool", val1 > val2)
+
             
         
         raise ValueError(f"Operador binário desconhecido: {self.value}")

@@ -8,7 +8,9 @@ class WhileNode(Node):
 
     def Evaluate(self, SymbolTable):
         while True:
-            _, cond_value = self.condition.Evaluate(SymbolTable)  # Reavalia a cada iteração
+            cond_type, cond_value = self.condition.Evaluate(SymbolTable)  # Reavalia a cada iteração
+            if cond_type != "bool":  # Verificação crucial
+                raise ValueError(f"condição do for deve ser bool, encontrado {cond_type}")
             if not cond_value:  # Se condição for falsa, sai do loop
                 break
             self.block.Evaluate(SymbolTable)
