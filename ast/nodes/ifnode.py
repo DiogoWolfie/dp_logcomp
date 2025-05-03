@@ -22,6 +22,8 @@ class IfNode(Node):
         return None
 
     def Generate(self, st):
+        if self.id is None:
+            print(f"[ERRO] Nó {type(self).__name__} está com id=None")
         else_label = f"else_{self.id}"
         end_label = f"endif_{self.id}"
 
