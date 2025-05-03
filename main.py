@@ -18,7 +18,7 @@ def main():
             
             gen_code = result.Generate(st)
             Code.append(gen_code)
-            Code.dump("saida.asm")
+            Code.dump("teste1.asm")
 
 
         except FileNotFoundError:
