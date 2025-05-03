@@ -88,7 +88,7 @@ class BinOp(Node):
                     {left_code}
                     pop ecx;
                     cdq; Estende sinal de eax para edx:eax, divisao so funciona com edx
-                    idiv eax, ecx; binop para divisão
+                    idiv ecx; binop para divisão
                     """
         
         elif self.value == "EQUAL_EQUAL":
