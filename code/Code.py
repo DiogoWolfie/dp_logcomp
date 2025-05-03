@@ -26,10 +26,11 @@ class Code:
             mov ebp , esp ; zera a pilha"""
             file.write(header.strip() + "\n")  # Remove espaços extras e adiciona \n
             # Escreve as instruções armazenadas
-            file.write("\n".join(Code.instructions))
+            file.write("\n".join(Code.instructions) + "\n")
 
             # Escrever as instruções finais: após término do código gerado
-            rodape="""mov esp, ebp ; reestabelece a pilha
+            rodape="""
+            mov esp, ebp ; reestabelece a pilha
             pop ebp
 
             ;chamada da interrupcao de saida (linux)
