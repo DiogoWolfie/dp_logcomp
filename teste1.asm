@@ -16,19 +16,21 @@ section .data
             sub esp, 4;
             mov dword [ebp - 4], 0;
             
-                
+            
             ;Geracao do scan()
             push scan_int
             push format_in
             call scanf
             add esp, 8
-            mov eax, [scan_int];
-                mov [ebp - 4], eax;None
+            mov eax, [scan_int]
+            mov [ebp - 4], eax
+        ; noop
             sub esp, 4;
             mov dword [ebp - 8], 0;
             
-                mov eax, 4;
-                mov [ebp - 8], eax;None
+            mov eax, 4
+            mov [ebp - 8], eax
+        ; noop
             
                     mov eax, [ebp - 8]; generate no identificador
                     push eax;

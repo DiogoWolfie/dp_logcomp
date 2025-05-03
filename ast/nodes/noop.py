@@ -7,4 +7,4 @@ class NoOp(Node):
     def Evaluate(self, SymbolTable):
         pass
     def Generate(self, SymbolTable):
-        pass
+        return "; noop"
