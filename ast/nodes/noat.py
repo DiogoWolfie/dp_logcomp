@@ -20,9 +20,6 @@ class NoAt(Node):
            
     def Generate(self, SymbolTable):
         valor_code = self.valor.Generate(SymbolTable)
-        if valor_code is None:
-            raise ValueError("Erro interno: valor da atribuição retornou None em Generate()")
-
         offset = SymbolTable.get_offset(self.identifier)
         return f"""
             {valor_code}

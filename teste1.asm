@@ -28,9 +28,15 @@ section .data
             sub esp, 4;
             mov dword [ebp - 8], 0;
             
-            mov eax, 4
+            mov eax, 5
             mov [ebp - 8], eax
         ; noop
+            sub esp, 4;
+            mov dword [ebp - 12], 0;
+            
+            mov eax, 10
+            mov [ebp - 12], eax
+        ; noop; noop
             
                     mov eax, [ebp - 8]; generate no identificador
                     push eax;
@@ -42,28 +48,17 @@ section .data
                     cmovl eax, ecx;
                     
             cmp eax, 0
-            je else_24
+            je else_28
             
-            mov eax, [ebp - 8]; generate no identificador
+            mov eax, [ebp - 12]; generate no identificador
             push eax ; Empilha os argumentos para chamar a funcao
             push format_out ; Dizendo para o printf que é um inteiro
             call printf ; Chamada da função
             add esp, 8 ; Remove os argumentos da pilha
-            jmp endif_24
-            else_24:
-            
-            
-                    mov eax, [ebp - 8]; generate no identificador
-                    push eax;
-                    mov eax, [ebp - 4]; generate no identificador
-                    pop ecx; 
-                    imul eax, ecx; binop para multiplicação
-                    
-            push eax ; Empilha os argumentos para chamar a funcao
-            push format_out ; Dizendo para o printf que é um inteiro
-            call printf ; Chamada da função
-            add esp, 8 ; Remove os argumentos da pilha
-            endif_24:mov esp, ebp ; reestabelece a pilha
+            jmp endif_28
+            else_28:
+            ; noop
+            endif_28:mov esp, ebp ; reestabelece a pilha
             pop ebp
 
             ;chamada da interrupcao de saida (linux)

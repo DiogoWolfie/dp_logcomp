@@ -17,8 +17,6 @@ class WhileNode(Node):
         return None
 
     def Generate(self, st):
-        if self.id is None:
-            print(f"[ERRO] Nó {type(self).__name__} está com id=None")
         start_label = f"loop_{self.id}"
         end_label = f"exit_{self.id}"
 
