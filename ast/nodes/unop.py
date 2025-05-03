@@ -30,5 +30,7 @@ class UnOp(Node):
         elif self.value == "-":
             code += "neg eax; generate do unop -"
         elif self.value == "!":
-            code += "not eax; generate do unop !"
+            code += """cmp eax, 0
+                    sete al
+                    movzx eax, al ;"""
         return code

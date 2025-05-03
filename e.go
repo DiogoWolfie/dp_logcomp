@@ -3,9 +3,9 @@
   var y int = 5
   var z int = 10
 
-  if (x < y) {
+  if (!(x < y)) {
     Println(z)
   } else {
-    
+    Println(y)
   }
 }
