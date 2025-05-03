@@ -2,6 +2,7 @@ import sys
 from prepro.prepro import PrePro
 from parser.parser import Parser
 from symtab.symboltable import SymbolTable
+from code.Code import Code
 
 def main():
     if len(sys.argv) > 1:
@@ -13,7 +14,12 @@ def main():
             processed_source = PrePro(source).filtered_source
             result = Parser.run(processed_source)
             st = SymbolTable()
-            result.Evaluate(st)
+            #result.Evaluate(st)
+            
+            gen_code = result.Generate(st)
+            Code.append(gen_code)
+            Code.dump("saida.asm")
+
 
         except FileNotFoundError:
             sys.stderr.write(f"Erro: Arquivo '{filename}' não encontrado.\n")

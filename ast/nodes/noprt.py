@@ -7,3 +7,11 @@ class NoPrt(Node):
     def Evaluate(self, SymbolTable):
         tipo, valor = self.children.Evaluate(SymbolTable)
         return print(str(valor).lower())
+    
+    def Generate(self, st):
+        return f"""
+            {self.children.Generate(st)}
+            push eax ; Empilha os argumentos para chamar a funcao
+            push format_out ; Dizendo para o printf que é um inteiro
+            call printf ; Chamada da função
+            add esp, 8 ; Remove os argumentos da pilha"""

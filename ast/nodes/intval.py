@@ -7,3 +7,7 @@ class IntVal(Node):
     
     def Evaluate(self, SymbolTable):
         return ("int", int(self.value))
+    
+    def Generate(self, st):
+
+        return f"mov eax, {str(self.value)}"

@@ -8,3 +8,6 @@ class NoId(Node):
     def Evaluate(self, SymbolTable):
         return SymbolTable.get(self.value)
     
+    def Generate(self, st):
+        offset = st.get_offset(self.value)
+        return f"mov eax, [ebp - {offset}]; generate no identificador"

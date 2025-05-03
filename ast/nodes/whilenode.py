@@ -16,3 +16,18 @@ class WhileNode(Node):
             self.block.Evaluate(SymbolTable)
         return None
 
+    def Generate(self, st):
+        start_label = f"loop_{self.id}"
+        end_label = f"exit_{self.id}"
+
+        cond_code = self.condition.Generate(st)
+        block_code = self.block.Generate(st)
+
+        return f"""
+        {start_label}:
+            {cond_code}
+            cmp eax, 0
+            je {end_label}
+            {block_code}
+            jmp {start_label}
+        {end_label}:"""

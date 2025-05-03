@@ -10,3 +10,9 @@ class NoBlc(Node):
         for c in self.children:
             result = c.Evaluate(SymbolTable)
         return result
+    
+    def Generate(self, st):
+        code = ""
+        for child in self.children:
+            code += str(child.Generate(st))
+        return code

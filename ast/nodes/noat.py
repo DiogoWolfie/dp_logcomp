@@ -1,6 +1,7 @@
 from ast.node import Node
 
 #NoAt - Nó de atribuição = só escreve na symbol table, logo o identifier é realmente apenas uma string
+#estou considerando que ess enó só vai exisitir depois do nó varnode (var x int)
 class NoAt(Node):
     def __init__(self, identifier, valor):
         super().__init__(None, []) 
@@ -17,3 +18,9 @@ class NoAt(Node):
             SymbolTable.set(self.identifier, val)
         return None
            
+    def Generate(self, SymbolTable):
+        offset = SymbolTable.get_offset(self.identifier)
+        return f"""
+                {self.valor.Generate(SymbolTable)};
+                mov [ebp - {offset}], eax;"""
+    

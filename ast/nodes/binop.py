@@ -50,8 +50,77 @@ class BinOp(Node):
                 return ("bool", val1 < val2)
             elif self.value == "GREATER":
                 return ("bool", val1 > val2)
-
-            
         
         raise ValueError(f"Operador binário desconhecido: {self.value}")
+    
+    def Generate(self, st):
+        right_code = self.children[1].Generate(st)
+        left_code = self.children[0].Generate(st)
+
+        if self.value == "PLUS":
+            return f"""
+                    {right_code}
+                    push eax;
+                    {left_code}
+                    pop ecx; 
+                    add eax, ecx; binop para soma
+                    """
+        elif self.value == "MINUS":
+            return f"""
+                    {right_code}
+                    push eax;
+                    {left_code}
+                    pop ecx; 
+                    sub eax, ecx; binop para subtração
+                    """
+        elif self.value == "MULT":
+            return f"""
+                    {right_code}
+                    push eax;
+                    {left_code}
+                    pop ecx; 
+                    imul eax, ecx; binop para multiplicação
+                    """
+        elif self.value == "DIV":
+            return f"""
+                    {right_code}
+                    push eax;
+                    {left_code}
+                    pop ecx;
+                    cdq; Estende sinal de eax para edx:eax, divisao so funciona com edx
+                    idiv eax, ecx; binop para divisão
+                    """
         
+        elif self.value == "EQUAL_EQUAL":
+            return f"""
+                    {right_code}
+                    push eax;
+                    {left_code}
+                    pop ecx;
+                    cmp eax, ecx;
+                    mov ecx, 1;
+                    mov eax, 0;
+                    cmove eax, ecx;
+                    """
+        elif self.value == "GREATER":
+            return f"""
+                    {right_code}
+                    push eax;
+                    {left_code}
+                    pop ecx;
+                    cmp eax, ecx;
+                    mov ecx, 1;
+                    mov eax, 0;
+                    cmovg eax, ecx;
+                    """
+        elif self.value == "LESS":
+            return f"""
+                    {right_code}
+                    push eax;
+                    {left_code}
+                    pop ecx;
+                    cmp eax, ecx;
+                    mov ecx, 1;
+                    mov eax, 0;
+                    cmovl eax, ecx;
+                    """

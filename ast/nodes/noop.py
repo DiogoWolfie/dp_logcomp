@@ -6,3 +6,5 @@ class NoOp(Node):
         super().__init__(None, [])
     def Evaluate(self, SymbolTable):
         pass
+    def Generate(self, SymbolTable):
+        pass

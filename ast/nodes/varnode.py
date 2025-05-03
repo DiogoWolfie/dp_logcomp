@@ -9,3 +9,10 @@ class VarNode(Node):
         _,tipo  = self.type.Evaluate(SymbolTable)
         SymbolTable.create(self.value, tipo)
         return None
+    
+    def Generate(self, SymbolTable):
+        SymbolTable.create(self.value, self.type)
+        offset = SymbolTable.get_offset(self.value)
+        return f"""
+            sub esp, 4
+            mov dword [ebp - {offset}], 0"""

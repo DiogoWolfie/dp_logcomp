@@ -4,3 +4,6 @@ class TypeNode(Node):
         super().__init__(value,[])
     def Evaluate(self, SymbolTable):
         return ("type", self.value)
+    
+    def Generate(self, SymbolTable):
+        return self.value

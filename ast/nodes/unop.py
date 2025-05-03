@@ -21,3 +21,14 @@ class UnOp(Node):
                 raise ValueError("Operador '-' não pode ser aplicado a um booleano")
             elif self.value == "!":
                 return ("bool",not val)
+            
+    def Generate(self, st):
+        code = self.children.Generate(st)
+        code += "\n"
+        if self.value == "+":
+            code += "; generate do unop +"
+        elif self.value == "-":
+            code += "neg eax; generate do unop -"
+        elif self.value == "!":
+            code += "not eax; generate do unop !"
+        return code
