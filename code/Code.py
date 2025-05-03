@@ -12,7 +12,7 @@ class Code:
             header="""
             section .data
                 format_out : db "%d" , 10 , 0 ; format do printf
-                format_in : db "%d " , 0 ; format do scanf
+                format_in : db "%d" , 0 ; format do scanf
                 scan_int : dd 0 ; 32−bits integer
             
             section .text

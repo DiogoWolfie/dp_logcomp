@@ -14,5 +14,6 @@ class VarNode(Node):
         SymbolTable.create(self.value, self.type)
         offset = SymbolTable.get_offset(self.value)
         return f"""
-            sub esp, 4
-            mov dword [ebp - {offset}], 0"""
+            sub esp, 4;
+            mov dword [ebp - {offset}], 0;
+            """

@@ -9,10 +9,10 @@ class ReadNode(Node):
         return ("int",int(input()))
     
     def Generate(self, st):
-        return f"""
-                ; Scanln
-                push scan_int ; endereço de memória de suporte
-                push format_in ; formato de entrada (int)
-                call scanf
-                add esp, 8 ; Remove os argumentos da pilha
-                mov eax, dword [scan_int] ; retorna o valor lido em EAX"""
+        return """
+            ;Geracao do scan()
+            push scan_int
+            push format_in
+            call scanf
+            add esp, 8
+            mov eax, [scan_int]"""
