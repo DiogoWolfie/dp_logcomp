@@ -124,3 +124,33 @@ class BinOp(Node):
                     mov eax, 0;
                     cmovl eax, ecx;
                     """
+        
+        elif self.value == "AND":
+            return f"""
+                    {right_code}
+                    push eax
+                    {left_code}
+                    pop ecx
+                    cmp eax, 0
+                    setne al
+                    movzx eax, al
+                    cmp ecx, 0
+                    setne cl
+                    movzx ecx, cl
+                    and eax, ecx ; binop para AND lógico"""
+                    
+
+        elif self.value == "OR":
+            return f"""
+                    {right_code}
+                    push eax
+                    {left_code}
+                    pop ecx
+                    cmp eax, 0
+                    setne al
+                    movzx eax, al
+                    cmp ecx, 0
+                    setne cl
+                    movzx ecx, cl
+                    or eax, ecx ; binop para OR lógico """
+                   
