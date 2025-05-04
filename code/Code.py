@@ -19,9 +19,9 @@ class Code:
                 extern printf ; usar _printf para Windows
                 extern scanf ; usar _scanf para Windows
                 ; extern _ExitProcess@4 ; usar para Windows
-                global main ; início do programa
+                global _start ; início do programa ld
             
-            main:
+            _start:
             push ebp ; guarda o EBP
             mov ebp , esp ; zera a pilha"""
             file.write(header.strip() + "\n")  # Remove espaços extras e adiciona \n
