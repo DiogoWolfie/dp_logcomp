@@ -1,13 +1,16 @@
 
 #classe Symbol Table
 class SymbolTable():
-    def __init__(self):
+    def __init__(self, parent=None):
        self._table = {}
+       self._parent = parent
        self._current_offset = 0 #para pegar o slato da memória
 
     def get(self,name):
         if name in self._table:
             return self._table[name] #retorna a tupla
+        elif self._parent:
+            return self._parent.get(name)
         else:
             raise ValueError(f"variável {name} não está definida")
         
@@ -20,15 +23,28 @@ class SymbolTable():
 
     #x = 3
     def set(self,name, value):
-        if name not in self._table:
+        if name in self._table:
+            type, _, offset = self._table[name]
+            self._table[name] = (type, value, offset)
+        elif self._parent:
+            self._parent.set(name, value)
+        else:
             raise ValueError(f"Variável '{name}' não foi declarada")
-        type, _, offset = self._table[name]
-        self._table[name] = (type, value, offset)
 
     def get_type(self, name):
-        type, _ = self._table[name]
-        return type
+        if name in self._table:
+            type, _, _ = self._table[name]
+            return type
+        elif self._parent:
+            return self._parent.get_type(name)
+        else:
+            raise ValueError(f"Variável '{name}' não foi declarada")
 
     def get_offset(self, name):
-        _, _, offset = self._table[name]
-        return offset
+        if name in self._table:
+            _, _, offset = self._table[name]
+            return offset
+        elif self._parent:
+            return self._parent.get_offset(name)
+        else:
+            raise ValueError(f"Variável '{name}' não foi declarada")

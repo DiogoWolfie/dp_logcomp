@@ -2,6 +2,7 @@ import sys
 from prepro.prepro import PrePro
 from parser.parser import Parser
 from symtab.symboltable import SymbolTable
+from ast.nodes.funccall import FuncCall
 from code.Code import Code
 
 def main():
@@ -14,11 +15,16 @@ def main():
             processed_source = PrePro(source).filtered_source
             result = Parser.run(processed_source)
             st = SymbolTable()
+
+            # Executa a função main
+            main_call = FuncCall("main", [])
+            main_call.Evaluate(st)
+
             #result.Evaluate(st)
             
-            gen_code = result.Generate(st)
-            Code.append(gen_code)
-            Code.dump("teste1.asm")
+            #gen_code = result.Generate(st)
+            #Code.append(gen_code)
+            #Code.dump("teste1.asm")
 
 
         except FileNotFoundError:

@@ -1,5 +1,5 @@
 from ast.node import Node
-
+from ast.nodes.returnnode import ReturnNode
 #NoBlc- nó do bloco
 class NoBlc(Node):
     def __init__(self, children):
@@ -9,6 +9,8 @@ class NoBlc(Node):
         result = None
         for c in self.children:
             result = c.Evaluate(SymbolTable)
+            if isinstance(c, ReturnNode):
+                return result
         return result
     
     def Generate(self, st):

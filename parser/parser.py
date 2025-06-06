@@ -15,11 +15,21 @@ from ast.nodes.boolval import BoolVal
 from ast.nodes.typenode import TypeNode
 from ast.nodes.varnode import VarNode #tem que ter um jeito mais fácil de importar isso
 from ast.node import Node
+from ast.nodes.funcdec import FuncDec
+from ast.nodes.funccall import FuncCall
+from ast.nodes.returnnode import ReturnNode
 
 #análise sintática - checa a ordem das palavras
 #talvez eu precise colocar um check aqui para o caso do próximo valor depois de um número seja um número tbm sem 
 class Parser():
     tokenizer = None
+
+    @staticmethod
+    def parseProgram():
+        functions = []
+        while Parser.tokenizer.next.type == "FUNC":
+            functions.append(Parser.parseFuncDeclaration())
+        return NoBlc(functions)
 
     @staticmethod
     def Block() -> Node:
@@ -42,6 +52,42 @@ class Parser():
         Parser.tokenizer.selectNext()  # Consome o "}"
         return NoBlc(statements)
     
+    @staticmethod
+    def parseFuncDeclaration():
+        #preciso checar se o próximo token é func
+        if Parser.tokenizer.next.type != "FUNC":
+            raise ValueError("Esperado 'func' para declaração de função")
+        # Se for, consome o token
+        Parser.tokenizer.selectNext()  # consome 'func'
+        if Parser.tokenizer.next.type != "IDENTIFIER":
+            raise ValueError("Esperado nome da função")
+        
+        func_name = Parser.tokenizer.next.value
+        Parser.tokenizer.selectNext()
+        if Parser.tokenizer.next.type != "OPEN_PAR":
+            raise ValueError("Esperado '(' após nome da função")
+        
+        Parser.tokenizer.selectNext()#consome (
+        params = []
+        while Parser.tokenizer.next.type != "CLOSE_PAR":
+            param_name = Parser.tokenizer.next.value
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type != "TYPE":
+                raise ValueError("Esperado tipo do parâmetro")
+            param_type = TypeNode(Parser.tokenizer.next.value)
+            params.append(VarNode(param_name, param_type))
+            Parser.tokenizer.selectNext()
+            if Parser.tokenizer.next.type == "COMMA":
+                Parser.tokenizer.selectNext()
+        Parser.tokenizer.selectNext()  # consome ')'
+        if Parser.tokenizer.next.type == "TYPE":
+            return_type = TypeNode(Parser.tokenizer.next.value)
+            Parser.tokenizer.selectNext()
+        else:
+            return_type = None
+        block = Parser.Block()
+        return FuncDec(func_name, params, return_type, block)
+
     @staticmethod
     def Statement() -> Node:
 
@@ -147,7 +193,19 @@ class Parser():
             else:
                 raise ValueError("sem identificador no var")
 
-        
+        #caso 7: é return
+        elif Parser.tokenizer.next.type == "RETURN":
+            Parser.tokenizer.selectNext()  # consome o 'return'
+            if Parser.tokenizer.next.type == "ENTER":
+                Parser.tokenizer.selectNext()
+                return ReturnNode(None)  # Retorno vazio
+            else:
+                result = ReturnNode(Parser.BExpression())
+                if Parser.tokenizer.next.type == "ENTER":
+                    Parser.tokenizer.selectNext()
+                    return result
+                else:
+                    raise ValueError("return sem quebra de linha")
             
 
 
@@ -264,7 +322,7 @@ class Parser():
 
     def run(source):
         Parser.tokenizer = Tokenizer(source)
-        result = Parser.Block()
+        result = Parser.parseProgram()
 
         if Parser.tokenizer.next.type != "EOF":
             raise ValueError("Entrada não foi finalizada corretamente")
