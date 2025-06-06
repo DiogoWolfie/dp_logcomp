@@ -9,6 +9,7 @@ class FuncDec(Node):
         self.return_type = return_type
         self.block = block
 
+
     def Evaluate(self, SymbolTable):
         SymbolTable.set(self.name, (self.return_type, self))
         return None
