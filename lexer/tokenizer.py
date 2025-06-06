@@ -10,7 +10,8 @@ class Tokenizer:
 
     def selectNext(self):
         
-        palavras_reservadas = ["Println", "if", "else", "while", "for", "Scan", "||", "&&", "var", "int", "float", "string", "bool", "true", "false"] #palavras reservadas da linguagem
+        palavras_reservadas = ["Println", "if", "else", "while", "for", "Scan", "||", "&&", "var", "int", "float", "string",
+                                "bool", "true", "false", "func", "return"] #palavras reservadas da linguagem
 
         #iginora todos os espaços em branco
         while self.position < len(self.source) and self.source[self.position] in [' ', '\t']:
@@ -88,6 +89,13 @@ class Tokenizer:
                 elif identifier == "false":
                     self.next = Token("BOOL", identifier)
                     return
+                elif identifier == "func":
+                    self.next = Token("FUNC", identifier)
+                    return
+                elif identifier == "return":   
+                    self.next = Token("RETURN", identifier)
+                    return
+               
             else:
                 self.next= Token("IDENTIFIER", identifier)
                 return
@@ -174,7 +182,10 @@ class Tokenizer:
             self.next = Token("NOT", current_char)
             self.position+=1
             return
-        
+        elif current_char == ",":
+            self.next = Token("COMMA", current_char)
+            self.position += 1
+            return
 
         else:
             raise ValueError(f"Token inesperado: {current_char}")
