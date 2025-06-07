@@ -32,10 +32,10 @@ class Parser():
                 Parser.tokenizer.selectNext()
                 continue
             elif Parser.tokenizer.next.type == "FUNC":
-                print("função a ser contruida")
+                
                 nodes.append(Parser.parseFuncDeclaration())
             else:
-                print("variavel global a ser montada")
+                
                 stmt = Parser.VarDeclaration()
                 if stmt is not None:
                     nodes.append(stmt)
@@ -73,7 +73,7 @@ class Parser():
             raise ValueError("Esperado nome da função")
         
         func_name = Parser.tokenizer.next.value
-        print(f"nome da função {func_name}")
+        
         Parser.tokenizer.selectNext()
         if Parser.tokenizer.next.type != "OPEN_PAR":
             raise ValueError("Esperado '(' após nome da função")
@@ -103,14 +103,14 @@ class Parser():
     def VarDeclaration() -> Node:
         result = None
         if Parser.tokenizer.next.type != "VAR":
-            print(f"deveria ser um var mas é um {Parser.tokenizer.next.type}")
+            
             raise ValueError("declaração errada de variável")
         Parser.tokenizer.selectNext() #consumir o VAR
         if Parser.tokenizer.next.type != "IDENTIFIER":
             raise ValueError("Esperado nome da variavel")
         
         identifier = Parser.tokenizer.next.value
-        print(f"variavel global {identifier}")
+       
         Parser.tokenizer.selectNext() #consome o identificador
         if Parser.tokenizer.next.type != "TYPE":
             raise ValueError("Esperado tipo da variavel")
@@ -140,14 +140,13 @@ class Parser():
         #caso 2: tem um identificador que precisa ser seguido de um =
         elif Parser.tokenizer.next.type == "IDENTIFIER":
             identifier = Parser.tokenizer.next.value
-            print(f"identificador {identifier}")
+            
             Parser.tokenizer.selectNext()
 
             if Parser.tokenizer.next.type == "EQUAL":
                 Parser.tokenizer.selectNext()
                 result = NoAt(identifier, Parser.BExpression())
-                print("nó de atribuição do caso 2")
-                print(f"token atual: {Parser.tokenizer.next.value}")
+                
                 if Parser.tokenizer.next.type == "ENTER":
                     Parser.tokenizer.selectNext()
                     return result
@@ -156,7 +155,7 @@ class Parser():
 
             elif Parser.tokenizer.next.type == "OPEN_PAR":
                 # chamada de função
-                print(f"Chamada de função: {identifier}")
+                
                 args = []
                 Parser.tokenizer.selectNext()  # consome (
                 while Parser.tokenizer.next.type != "CLOSE_PAR":
@@ -397,7 +396,7 @@ class Parser():
         result = Parser.parseProgram()
 
         if Parser.tokenizer.next.type != "EOF":
-            print(f"Erro: Entrada não finalizada corretamente, próximo token: {Parser.tokenizer.next.type}")
+            
             raise ValueError("Entrada não foi finalizada corretamente")
 
         return result #chama os resultados da árvore
