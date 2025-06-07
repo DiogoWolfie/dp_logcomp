@@ -16,6 +16,9 @@ def main():
             result = Parser.run(processed_source)
             st = SymbolTable()
 
+            # Avalia o bloco global para registrar funções e variáveis globais
+            result.Evaluate(st)
+
             # Executa a função main
             main_call = FuncCall("main", [])
             main_call.Evaluate(st)

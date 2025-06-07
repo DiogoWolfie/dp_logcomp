@@ -7,3 +7,6 @@ class ReturnNode(Node):
 
     def Evaluate(self, SymbolTable):
         return self.expr.Evaluate(SymbolTable)
+    
+    def Generate(self, SymbolTable):
+        pass

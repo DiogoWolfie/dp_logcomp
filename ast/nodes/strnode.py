@@ -7,3 +7,5 @@ class StrNode(Node):
     
     def Evaluate(self, SymbolTable):
         return ("string", str(self.value))
+    def Generate(self, SymbolTable):
+        pass

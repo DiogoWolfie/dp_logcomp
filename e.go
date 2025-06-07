@@ -1,11 +1,12 @@
-{
-  var x int = Scan()
-  var y int = 5
-  var z int = 10
-
-  if (!(x < y)) {
-    Println(z)
-  } else {
-    Println(y)
+func fatorial(n int) int {
+  Println(n)            // ← debug: mostra cada chamada
+  if (n == 1) {
+    return 1
   }
+  return n * fatorial(n - 1)
+}
+
+func main() {
+  var resultado int = fatorial(1)
+  Println(resultado)
 }

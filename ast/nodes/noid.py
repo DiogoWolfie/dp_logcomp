@@ -6,7 +6,8 @@ class NoId(Node):
         super().__init__(value, [])
     
     def Evaluate(self, SymbolTable):
-        return SymbolTable.get(self.value)
+        tipo, valor, _ = SymbolTable.get(self.value)
+        return (tipo, valor)
     
     def Generate(self, st):
         offset = st.get_offset(self.value)

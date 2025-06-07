@@ -13,7 +13,7 @@ from ast.nodes.readnode import ReadNode
 from ast.nodes.strnode import StrNode
 from ast.nodes.boolval import BoolVal
 from ast.nodes.typenode import TypeNode
-from ast.nodes.varnode import VarNode #tem que ter um jeito mais fácil de importar isso
+from ast.nodes.varnode import VarNode 
 from ast.node import Node
 from ast.nodes.funcdec import FuncDec
 from ast.nodes.funccall import FuncCall
@@ -26,10 +26,20 @@ class Parser():
 
     @staticmethod
     def parseProgram():
-        functions = []
-        while Parser.tokenizer.next.type == "FUNC":
-            functions.append(Parser.parseFuncDeclaration())
-        return NoBlc(functions)
+        nodes = []
+        while Parser.tokenizer.next.type in ("FUNC", "VAR", "IDENTIFIER", "PRINT", "RETURN", "IF", "WHILE", "ENTER"):
+            if Parser.tokenizer.next.type == "ENTER":
+                Parser.tokenizer.selectNext()
+                continue
+            elif Parser.tokenizer.next.type == "FUNC":
+                print("função a ser contruida")
+                nodes.append(Parser.parseFuncDeclaration())
+            else:
+                print("variavel global a ser montada")
+                stmt = Parser.VarDeclaration()
+                if stmt is not None:
+                    nodes.append(stmt)
+        return NoBlc(nodes)  # ou o nó de bloco que você usa
 
     @staticmethod
     def Block() -> Node:
@@ -63,6 +73,7 @@ class Parser():
             raise ValueError("Esperado nome da função")
         
         func_name = Parser.tokenizer.next.value
+        print(f"nome da função {func_name}")
         Parser.tokenizer.selectNext()
         if Parser.tokenizer.next.type != "OPEN_PAR":
             raise ValueError("Esperado '(' após nome da função")
@@ -89,6 +100,34 @@ class Parser():
         return FuncDec(func_name, params, return_type, block)
 
     @staticmethod
+    def VarDeclaration() -> Node:
+        result = None
+        if Parser.tokenizer.next.type != "VAR":
+            print(f"deveria ser um var mas é um {Parser.tokenizer.next.type}")
+            raise ValueError("declaração errada de variável")
+        Parser.tokenizer.selectNext() #consumir o VAR
+        if Parser.tokenizer.next.type != "IDENTIFIER":
+            raise ValueError("Esperado nome da variavel")
+        
+        identifier = Parser.tokenizer.next.value
+        print(f"variavel global {identifier}")
+        Parser.tokenizer.selectNext() #consome o identificador
+        if Parser.tokenizer.next.type != "TYPE":
+            raise ValueError("Esperado tipo da variavel")
+        tipo = TypeNode(Parser.tokenizer.next.value)
+        Parser.tokenizer.selectNext() #consumo o tipo
+
+        var_node = VarNode(identifier, tipo)
+
+        if Parser.tokenizer.next.type == "EQUAL":
+            Parser.tokenizer.selectNext()
+            return NoBlc([var_node, NoAt(identifier, Parser.BExpression())])
+
+        return var_node
+                
+
+
+    @staticmethod
     def Statement() -> Node:
 
         result = None
@@ -100,23 +139,52 @@ class Parser():
         
         #caso 2: tem um identificador que precisa ser seguido de um =
         elif Parser.tokenizer.next.type == "IDENTIFIER":
-            
-            indentifier = Parser.tokenizer.next.value
-            Parser.tokenizer.selectNext()#consome o identificador
+            identifier = Parser.tokenizer.next.value
+            print(f"identificador {identifier}")
+            Parser.tokenizer.selectNext()
 
             if Parser.tokenizer.next.type == "EQUAL":
-                Parser.tokenizer.selectNext()  # consome o '='
-                result = NoAt(indentifier, Parser.BExpression())
-            
-                #checo se o proximo é realemtne um \n
+                Parser.tokenizer.selectNext()
+                result = NoAt(identifier, Parser.BExpression())
+                print("nó de atribuição do caso 2")
+                print(f"token atual: {Parser.tokenizer.next.value}")
                 if Parser.tokenizer.next.type == "ENTER":
                     Parser.tokenizer.selectNext()
                     return result
                 else:
-                    raise ValueError("faltou quebra de linha entre as atribuições")
-            
+                    raise ValueError("Esperado ENTER após instrução")
+
+            elif Parser.tokenizer.next.type == "OPEN_PAR":
+                # chamada de função
+                print(f"Chamada de função: {identifier}")
+                args = []
+                Parser.tokenizer.selectNext()  # consome (
+                while Parser.tokenizer.next.type != "CLOSE_PAR":
+                    args.append(Parser.BExpression())
+                    if Parser.tokenizer.next.type == "COMMA":
+                        Parser.tokenizer.selectNext()
+                        args.append(Parser.BExpression())
+
+                if Parser.tokenizer.next.type != "CLOSE_PAR":
+                    raise ValueError("Parênteses da chamada de função não fechado")
+                Parser.tokenizer.selectNext()  # consome )
+                result = FuncCall(identifier, args)
+
+                if Parser.tokenizer.next.type == "ENTER":
+                    Parser.tokenizer.selectNext()
+                    return result
+                else:
+                    raise ValueError("Esperado ENTER após chamada de função")
+
             else:
-                raise ValueError("identificador sem atribuição")
+                raise ValueError("Identificador mal utilizado")
+
+            # if Parser.tokenizer.next.type == "ENTER":
+            #     Parser.tokenizer.selectNext()
+            #     return result
+            # else:
+            #     raise ValueError("Esperado ENTER após instrução")
+
             
         #caso 3: é um print:
         elif Parser.tokenizer.next.type == "PRINT":
@@ -168,46 +236,35 @@ class Parser():
             else:
                 raise ValueError("if/else sem quebra de linha")
             
-        #caso 6: é um var idem type (var x int = 3)
-        elif Parser.tokenizer.next.type == "VAR":
-            Parser.tokenizer.selectNext() #consome o var
-            if Parser.tokenizer.next.type == "IDENTIFIER":
-                id = Parser.tokenizer.next.value
-                Parser.tokenizer.selectNext()#consome o id
 
-                if Parser.tokenizer.next.type == "TYPE":
-                    tipo = TypeNode(Parser.tokenizer.next.value)
-                    Parser.tokenizer.selectNext()#consome o tipo
-
-                    # Primeiro cria a variável na symbol table
-                    var_node = VarNode(id, tipo)
-                    
-                    if Parser.tokenizer.next.type == "EQUAL":
-                        Parser.tokenizer.selectNext() #consome o igual
-                        # Depois faz a atribuição
-                        return NoBlc([var_node,NoAt(id, Parser.BExpression())])
-                    else:
-                        return var_node
-                else:
-                    raise ValueError("tipo não declarado")
-            else:
-                raise ValueError("sem identificador no var")
-
-        #caso 7: é return
+        #caso 6: é return
         elif Parser.tokenizer.next.type == "RETURN":
-            Parser.tokenizer.selectNext()  # consome o 'return'
-            if Parser.tokenizer.next.type == "ENTER":
-                Parser.tokenizer.selectNext()
-                return ReturnNode(None)  # Retorno vazio
-            else:
-                result = ReturnNode(Parser.BExpression())
+            Parser.tokenizer.selectNext()  # consome 'return'
+
+            # Se o próximo for ENTER ou CLOSE_KEY, é um return vazio
+            if Parser.tokenizer.next.type in ["ENTER", "CLOSE_KEY"]:
                 if Parser.tokenizer.next.type == "ENTER":
                     Parser.tokenizer.selectNext()
-                    return result
-                else:
-                    raise ValueError("return sem quebra de linha")
-            
+                return ReturnNode(None)
 
+            # Caso contrário, espera uma expressão de retorno
+            result = ReturnNode(Parser.BExpression())
+
+            # Após a expressão, espera-se ENTER ou CLOSE_KEY
+            if Parser.tokenizer.next.type in ["ENTER", "CLOSE_KEY"]:
+                if Parser.tokenizer.next.type == "ENTER":
+                    Parser.tokenizer.selectNext()
+                return result
+            else:
+                raise ValueError("return deve ser seguido por quebra de linha ou fim de bloco")
+                                    
+        #caso 7: var
+        elif Parser.tokenizer.next.type == "VAR":
+            return Parser.VarDeclaration()
+
+        #caso 9: block
+        elif Parser.tokenizer.next.type == "OPEN_KEY":
+            return Parser.Block()
 
 
         else:
@@ -241,7 +298,22 @@ class Parser():
             return result
         
         elif token.type == "IDENTIFIER":
-            return NoId(token.value)
+            identifier = token.value
+            # Verifica se é uma chamada de função
+            if Parser.tokenizer.next.type == "OPEN_PAR":
+                args = []
+                Parser.tokenizer.selectNext()  # consome '('
+                while Parser.tokenizer.next.type != "CLOSE_PAR":
+                    args.append(Parser.BExpression())
+                    if Parser.tokenizer.next.type == "COMMA":
+                        Parser.tokenizer.selectNext()
+                if Parser.tokenizer.next.type != "CLOSE_PAR":
+                    raise ValueError("Parênteses da chamada de função não fechado")
+                Parser.tokenizer.selectNext()  # consome ')'
+                return FuncCall(identifier, args)
+            else:
+                return NoId(identifier)
+
 
         elif token.type == "STRING":
             return StrNode(token.value)
@@ -325,6 +397,7 @@ class Parser():
         result = Parser.parseProgram()
 
         if Parser.tokenizer.next.type != "EOF":
+            print(f"Erro: Entrada não finalizada corretamente, próximo token: {Parser.tokenizer.next.type}")
             raise ValueError("Entrada não foi finalizada corretamente")
 
         return result #chama os resultados da árvore
