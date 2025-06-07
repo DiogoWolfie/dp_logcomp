@@ -21,14 +21,12 @@ class NoBlc(Node):
     #         # interrompe o bloco e propaga o resultado
     #         if result is not None:
     #             return result
+   
     def Evaluate(self, SymbolTable):
         for child in self.children:
-            result = child.Evaluate(SymbolTable)
-            if isinstance(child, ReturnNode) or result is not None:  
-                return result
+            child.Evaluate(SymbolTable)
         return None
-    
-        return None  # Bloco sem return explícito
+            
     def Generate(self, st):
         code = ""
         for child in self.children:

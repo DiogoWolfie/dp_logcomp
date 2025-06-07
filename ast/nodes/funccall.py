@@ -1,4 +1,5 @@
 from ast.node import Node
+from RTE.RTE import ReturnException
 
 def map_python_type(value):
     if isinstance(value, int):
@@ -19,44 +20,29 @@ class FuncCall(Node):
 
     def Evaluate(self, symbol_table):
         tipo, func_node, _ = symbol_table.get(self.name)
+        local_table = symbol_table.__class__(parent=symbol_table)
 
-        if not hasattr(func_node, "params") or not hasattr(func_node, "block"):
-            raise ValueError(f"{self.name} não é uma função válida")
-
-        if len(self.args) != len(func_node.params):
-            raise ValueError(f"Número incorreto de argumentos para a função '{self.name}'")
-
-        local_table = symbol_table.__class__(parent=symbol_table)  # nova SymbolTable encadeada
-
+        # Cria e define os parâmetros na tabela local
         for param, arg in zip(func_node.params, self.args):
             tipo_arg, valor_arg = arg.Evaluate(symbol_table)
             local_table.create(param.value, tipo_arg)
             local_table.set(param.value, valor_arg)
 
-        # Avalia o bloco e captura o retorno
-        result = func_node.block.Evaluate(local_table)
-
-        # Se a função tem tipo de retorno, verifica o tipo
-        if func_node.return_type and func_node.return_type.value != "void":
-            if result is None:
+        try:
+            func_node.block.Evaluate(local_table)
+            # Só exige return se não for void
+            if func_node.return_type and func_node.return_type.value != "void":
                 raise ValueError(f"Função {self.name} deve retornar um valor")
+            return ("void", None)
+        except ReturnException as ret:
+            result_type = ret.type
+            result_value = ret.value
 
-            # Obtém o tipo do resultado
-            if isinstance(result, tuple):
-                result_type, result_value = result
-            else:
-                result_type = map_python_type(result)
-                result_value = result
-
-            # Verifica compatibilidade
-            if func_node.return_type.value != result_type:
-                raise ValueError(
-                    f"Tipo de retorno incompatível em {self.name}: esperado {func_node.return_type.value}, obtido {result_type}"
-                )
-
-            return (result_type, result_value) if isinstance(result, tuple) else result
-
-        return None
+        if func_node.return_type and func_node.return_type.value != result_type:
+            raise ValueError(
+                f"Tipo de retorno incompatível em {self.name}: esperado {func_node.return_type.value}, obtido {result_type}"
+            )
+        return (result_type, result_value)
 
     def Generate(self, symbol_table):
         # Implementar geração de código depois

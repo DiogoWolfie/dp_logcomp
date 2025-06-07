@@ -1,12 +1,13 @@
-func fatorial(n int) int {
-  Println(n)            // ← debug: mostra cada chamada
-  if (n == 1) {
-    return 1
-  }
-  return n * fatorial(n - 1)
+var a int = 3
+
+func fazalgo() int {
+  var a int = 2
+  Println(a)
+  return a
 }
 
-func main() {
-  var resultado int = fatorial(1)
-  Println(resultado)
+func main(){
+  Println(a)
+  var b int = fazalgo() 
+  Println(b)
 }
