@@ -12,11 +12,12 @@ class NoBlc(Node):
     def Evaluate(self, SymbolTable):
         # Não cria novo escopo se for bloco de função
         if self.is_func_block or SymbolTable._parent is None:
-            
             local_table = SymbolTable
         else:
-            
             local_table = SymbolTable.__class__(parent=SymbolTable)
+            # Propaga o tipo de retorno esperado, se existir
+            if hasattr(SymbolTable, "_expected_return_type"):
+                local_table._expected_return_type = SymbolTable._expected_return_type
         for child in self.children:
             child.Evaluate(local_table)
         return None
