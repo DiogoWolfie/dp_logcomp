@@ -16,7 +16,7 @@ class IfNode(Node):
 
         if cond:
             self.block.Evaluate(SymbolTable)
-        elif self.else_block is not None:
+        elif self.else_block:
             self.else_block.Evaluate(SymbolTable)
 
         return None
