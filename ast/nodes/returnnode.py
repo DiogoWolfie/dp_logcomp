@@ -10,7 +10,7 @@ class ReturnNode(Node):
         if self.expr:
             result = self.expr.Evaluate(SymbolTable)
             if isinstance(result, tuple) and len(result) == 2:
-                type_, value = result  # <-- tipo primeiro, valor depois
+                type_, value = result
             else:
                 value = result
                 if isinstance(value, int):

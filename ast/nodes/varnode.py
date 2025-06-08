@@ -1,13 +1,12 @@
 from ast.node import Node
 
 class VarNode(Node):
-    def __init__(self, value, type):
-        super().__init__(value,[])
-        self.value = value
-        self.type = type
+    def __init__(self, name, tipo):
+        super().__init__(name, [])
+        self.name = name
+        self.tipo = tipo
     def Evaluate(self, SymbolTable):
-        _,tipo  = self.type.Evaluate(SymbolTable)
-        SymbolTable.create(self.value, tipo)
+        SymbolTable.create(self.name, self.tipo.value if hasattr(self.tipo, "value") else self.tipo)
         return None
     
     def Generate(self, SymbolTable):

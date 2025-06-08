@@ -5,26 +5,20 @@ from ast.nodes.returnnode import ReturnNode
 
 
 class NoBlc(Node):
-    def __init__(self, children):
+    def __init__(self, children, is_func_block=False):
         super().__init__(None, children)
+        self.is_func_block = is_func_block
 
-    # def Evaluate(self, SymbolTable):
-    #     for child in self.children:
-    #         # Se o filho é um ReturnNode, avalia e retorna imediatamente
-    #         if isinstance(child, ReturnNode):
-    #             return child.Evaluate(SymbolTable)
-            
-    #         # Caso contrário, avalia normalmente
-    #         result = child.Evaluate(SymbolTable)
-            
-    #         # Se a avaliação do filho retornar um valor (ex.: chamada de função com return),
-    #         # interrompe o bloco e propaga o resultado
-    #         if result is not None:
-    #             return result
-   
     def Evaluate(self, SymbolTable):
+        # Não cria novo escopo se for bloco de função
+        if self.is_func_block or SymbolTable._parent is None:
+            
+            local_table = SymbolTable
+        else:
+            
+            local_table = SymbolTable.__class__(parent=SymbolTable)
         for child in self.children:
-            child.Evaluate(SymbolTable)
+            child.Evaluate(local_table)
         return None
             
     def Generate(self, st):

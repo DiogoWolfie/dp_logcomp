@@ -3,9 +3,8 @@ from ast.node import Node
 #NoPrt - nó do print
 class NoPrt(Node):
     def __init__(self, children):
-        super().__init__(None,children)
+        super().__init__(None, children)
     def Evaluate(self, SymbolTable):
-        # Se for lista, itera; se não, trata como único nó
         children = self.children if isinstance(self.children, list) else [self.children]
         for child in children:
             result = child.Evaluate(SymbolTable)

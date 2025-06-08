@@ -25,7 +25,7 @@ class FuncCall(Node):
         # Cria e define os parâmetros na tabela local
         for param, arg in zip(func_node.params, self.args):
             tipo_arg, valor_arg = arg.Evaluate(symbol_table)
-            local_table.create(param.value, tipo_arg)
+            local_table.create(param.value, param.tipo if hasattr(param, "tipo") else tipo_arg)
             local_table.set(param.value, valor_arg)
 
         try:

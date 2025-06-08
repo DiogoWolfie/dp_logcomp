@@ -18,6 +18,7 @@ from ast.node import Node
 from ast.nodes.funcdec import FuncDec
 from ast.nodes.funccall import FuncCall
 from ast.nodes.returnnode import ReturnNode
+from ast.nodes.nodecval import DeclaracaoComValor
 
 #análise sintática - checa a ordem das palavras
 #talvez eu precise colocar um check aqui para o caso do próximo valor depois de um número seja um número tbm sem 
@@ -35,32 +36,30 @@ class Parser():
                 
                 nodes.append(Parser.parseFuncDeclaration())
             else:
-                
+               
                 stmt = Parser.VarDeclaration()
                 if stmt is not None:
                     nodes.append(stmt)
         return NoBlc(nodes)  # ou o nó de bloco que você usa
 
+   
+
     @staticmethod
-    def Block() -> Node:
-        token = Parser.tokenizer.next  # Primeiro verifica o token atual
-        
-        if token.type != "OPEN_KEY":
+    def Block(is_func_block=False) -> Node:
+       
+        if Parser.tokenizer.next.type != "OPEN_KEY":
             raise ValueError("Erro na inicialização do bloco, sem {")
-        
-        Parser.tokenizer.selectNext()  # Só então consome o "{"
+        Parser.tokenizer.selectNext()  # consome '{'
         statements = []
-        
-        if Parser.tokenizer.next.type == "ENTER":
+        while Parser.tokenizer.next.type == "ENTER":
             Parser.tokenizer.selectNext()
-            while Parser.tokenizer.next.type != "CLOSE_KEY":
-                stmt = Parser.Statement()
-                statements.append(stmt)
-        else:
-            raise ValueError("esperado ENTER após {")
-        
-        Parser.tokenizer.selectNext()  # Consome o "}"
-        return NoBlc(statements)
+        while Parser.tokenizer.next.type != "CLOSE_KEY":
+            stmt = Parser.Statement()
+            statements.append(stmt)
+            while Parser.tokenizer.next.type == "ENTER":
+                Parser.tokenizer.selectNext()
+        Parser.tokenizer.selectNext()  # consome '}'
+        return NoBlc(statements, is_func_block=is_func_block)
     
     @staticmethod
     def parseFuncDeclaration():
@@ -74,6 +73,7 @@ class Parser():
         
         func_name = Parser.tokenizer.next.value
         
+        
         Parser.tokenizer.selectNext()
         if Parser.tokenizer.next.type != "OPEN_PAR":
             raise ValueError("Esperado '(' após nome da função")
@@ -86,7 +86,8 @@ class Parser():
             if Parser.tokenizer.next.type != "TYPE":
                 raise ValueError("Esperado tipo do parâmetro")
             param_type = TypeNode(Parser.tokenizer.next.value)
-            params.append(VarNode(param_name, param_type))
+            #params.append(VarNode(param_name, param_type))
+            params.append(VarNode(param_name, param_type.value if hasattr(param_type, "value") else param_type))
             Parser.tokenizer.selectNext()
             if Parser.tokenizer.next.type == "COMMA":
                 Parser.tokenizer.selectNext()
@@ -94,9 +95,13 @@ class Parser():
         if Parser.tokenizer.next.type == "TYPE":
             return_type = TypeNode(Parser.tokenizer.next.value)
             Parser.tokenizer.selectNext()
+           
         else:
             return_type = None
-        block = Parser.Block()
+        # block = Parser.Block()
+        # return FuncDec(func_name, params, return_type, block)
+        # Quando criar o bloco do corpo da função:
+        block = Parser.Block(is_func_block=True)
         return FuncDec(func_name, params, return_type, block)
 
     @staticmethod
@@ -105,6 +110,7 @@ class Parser():
         if Parser.tokenizer.next.type != "VAR":
             
             raise ValueError("declaração errada de variável")
+        
         Parser.tokenizer.selectNext() #consumir o VAR
         if Parser.tokenizer.next.type != "IDENTIFIER":
             raise ValueError("Esperado nome da variavel")
@@ -115,14 +121,15 @@ class Parser():
         if Parser.tokenizer.next.type != "TYPE":
             raise ValueError("Esperado tipo da variavel")
         tipo = TypeNode(Parser.tokenizer.next.value)
+        
         Parser.tokenizer.selectNext() #consumo o tipo
 
         var_node = VarNode(identifier, tipo)
 
         if Parser.tokenizer.next.type == "EQUAL":
             Parser.tokenizer.selectNext()
-            return NoBlc([var_node, NoAt(identifier, Parser.BExpression())])
-
+            return DeclaracaoComValor(identifier, Parser.BExpression(), tipo)
+        
         return var_node
                 
 
