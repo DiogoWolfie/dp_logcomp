@@ -20,13 +20,23 @@ class FuncCall(Node):
 
     def Evaluate(self, symbol_table):
         tipo, func_node, _ = symbol_table.get(self.name)
+        if len(self.args) != len(func_node.params):
+            raise ValueError(f"Número de argumentos errado para função '{self.name}'")
+        
         local_table = symbol_table.__class__(parent=symbol_table)
 
         # Cria e define os parâmetros na tabela local
         for param, arg in zip(func_node.params, self.args):
             tipo_arg, valor_arg = arg.Evaluate(symbol_table)
+            tipo_param = param.tipo if hasattr(param, "tipo") else param
+            tipo_param = tipo_param.value if hasattr(tipo_param, "value") else tipo_param
+            if tipo_arg != tipo_param:
+                raise ValueError(f"Tipo de argumento errado em '{self.name}': esperado {tipo_param}, recebido {tipo_arg}")
             local_table.create(param.value, param.tipo if hasattr(param, "tipo") else tipo_arg)
             local_table.set(param.value, valor_arg)
+
+        # Injeta o tipo de retorno esperado para o ReturnNode
+        local_table._expected_return_type = func_node.return_type.value if func_node.return_type else "void"
 
         try:
             func_node.block.Evaluate(local_table)

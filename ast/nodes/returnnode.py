@@ -7,6 +7,9 @@ class ReturnNode(Node):
         self.expr = expr
 
     def Evaluate(self, SymbolTable):
+        expected_return_type = getattr(SymbolTable, "_expected_return_type", "void")
+        if expected_return_type == "void" and self.expr is not None:
+            raise ValueError("Função void não pode retornar valor")
         if self.expr:
             result = self.expr.Evaluate(SymbolTable)
             if isinstance(result, tuple) and len(result) == 2:

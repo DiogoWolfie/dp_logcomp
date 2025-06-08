@@ -57,3 +57,5 @@ class SymbolTable():
         # Armazena: (tipo de retorno, nó da função, None)
         return_type = func_node.return_type.value if func_node.return_type else "void"
         self._table[name] = (return_type, func_node, None)
+
+    

@@ -13,10 +13,16 @@ class IfNode(Node):
 
         if tipo != "bool":
             raise TypeError("A condição do if deve ser booleana")
+        
+         # Checagem para bloco vazio
+        if not self.block.children:
+            raise ValueError("Bloco vazio no if não permitido")
 
         if cond:
             self.block.Evaluate(SymbolTable)
         elif self.else_block:
+            if not self.else_block.children:
+                raise RuntimeError("Bloco vazio no else não permitido")
             self.else_block.Evaluate(SymbolTable)
 
         return None
